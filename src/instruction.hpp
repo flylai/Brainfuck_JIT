@@ -1,6 +1,7 @@
 #ifndef BRAINFUCK_JIT_INSTRUCTION_H
 #define BRAINFUCK_JIT_INSTRUCTION_H
 
+#include <string>
 
 enum class Opcode : char {
     PTRADD,  // >
@@ -16,41 +17,60 @@ enum class Opcode : char {
 
 struct Instruction {
     Opcode tag{Opcode::UNKNOWN};
+    virtual std::string toString() { return "Instruction(UNKNOWN)"; }
 };
 
 struct PtrValCompute : Instruction {
-    unsigned int times = 0;
+    int times = 0;
 };
 
 struct PtrAdd : PtrValCompute {
-    explicit PtrAdd(unsigned int times) {
+    explicit PtrAdd(int times) {
         this->times = times;
         tag = Opcode::PTRADD;
     }
+    std::string toString() override {
+        return "PtrAdd(" + std::to_string(times) + ")";
+    }
 };
 struct PtrSub : PtrValCompute {
-    explicit PtrSub(unsigned int times) {
+    explicit PtrSub(int times) {
         this->times = times;
         tag = Opcode::PTRSUB;
     }
+    std::string toString() override {
+        return "PtrSub(" + std::to_string(-times) + ")";
+    }
 };
 struct ValAdd : PtrValCompute {
-    explicit ValAdd(unsigned int times) {
+    explicit ValAdd(int times) {
         this->times = times;
         tag = Opcode::VALADD;
     }
+    std::string toString() override {
+        return "ValAdd(" + std::to_string(times) + ")";
+    }
 };
 struct ValSub : PtrValCompute {
-    explicit ValSub(unsigned int times) {
+    explicit ValSub(int times) {
         this->times = times;
         tag = Opcode::VALSUB;
+    }
+    std::string toString() override {
+        return "ValSub(" + std::to_string(-times) + ")";
     }
 };
 struct ReadChar : Instruction {
     ReadChar() { tag = Opcode::READCHAR; }
+    std::string toString() override {
+        return "ReadChar()";
+    }
 };
 struct PutChar : Instruction {
     PutChar() { tag = Opcode::PUTCHAR; }
+    std::string toString() override {
+        return "PutChar()";
+    }
 };
 
 struct Jmp : Instruction {
@@ -61,11 +81,17 @@ struct LBracket : Jmp {
         this->target = target;
         tag = Opcode::LBRACKET;
     }
+    std::string toString() override {
+        return "LBracket(" + std::to_string(target) + ")";
+    }
 };
 struct RBracket : Jmp {
     explicit RBracket(unsigned int target) {
         this->target = target;
         tag = Opcode::RBRACKET;
+    }
+    std::string toString() override {
+        return "RBracket(" + std::to_string(target) + ")";
     }
 };
 
