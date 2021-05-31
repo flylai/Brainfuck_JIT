@@ -1,7 +1,7 @@
 #ifndef BRAINFUCK_JIT_VM_H
 #define BRAINFUCK_JIT_VM_H
 
-#include "Instruction.hpp"
+#include "instruction.hpp"
 #include <cstdio>
 #include <vector>
 
@@ -43,9 +43,9 @@ public:
 
 private:
     void ptrAdd() { sp += static_cast<PtrAdd *>(instructions[pc])->times; }
-    void ptrSub() { sp -= static_cast<PtrSub *>(instructions[pc])->times; }
+    void ptrSub() { sp += static_cast<PtrSub *>(instructions[pc])->times; }
     void valAdd() { registers[sp] += static_cast<ValAdd *>(instructions[pc])->times; }
-    void valSub() { registers[sp] -= static_cast<ValSub *>(instructions[pc])->times; }
+    void valSub() { registers[sp] += static_cast<ValSub *>(instructions[pc])->times; }
     void readChar() { registers[sp] = getchar(); }
     void putChar() { putchar(registers[sp]); }
     void lBracket() {

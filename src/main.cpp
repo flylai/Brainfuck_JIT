@@ -1,4 +1,5 @@
-#include "Instruction.hpp"
+#include "instruction.hpp"
+#include "optimizer.hpp"
 #include "vm.hpp"
 
 #include <fstream>
@@ -21,13 +22,13 @@ int main(int argc, char *argv[]) {
                 instructions.emplace_back(new PtrAdd(1));
                 break;
             case '<':
-                instructions.emplace_back(new PtrSub(1));
+                instructions.emplace_back(new PtrSub(-1));
                 break;
             case '+':
                 instructions.emplace_back(new ValAdd(1));
                 break;
             case '-':
-                instructions.emplace_back(new ValSub(1));
+                instructions.emplace_back(new ValSub(-1));
                 break;
             case '.':
                 instructions.emplace_back(new PutChar());
@@ -50,7 +51,15 @@ int main(int argc, char *argv[]) {
     }
 
     BrainfuckVM vm;
-    vm.instructions = std::move(instructions);
+
+    {
+        Optimizer optimizer;
+        optimizer.instructions = std::move(instructions);
+        optimizer.optimize();
+        vm.instructions = std::move(optimizer.optimized);
+    }
+
+
     vm.run();
 
     return 0;
