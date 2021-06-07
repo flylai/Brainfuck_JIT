@@ -1,4 +1,5 @@
 #include "instruction.hpp"
+#include "jit.hpp"
 #include "optimizer.hpp"
 #include "vm.hpp"
 
@@ -56,11 +57,16 @@ int main(int argc, char *argv[]) {
         Optimizer optimizer;
         optimizer.instructions = std::move(instructions);
         optimizer.optimize();
-        vm.instructions = std::move(optimizer.optimized);
+        //        vm.instructions = std::move(optimizer.optimized);
+        JIT jit;
+        jit.instructions = std::move(optimizer.optimized);
+        jit.compile();
+        jit.print();
+        jit.executeMem(jit.allocMem(30000));
     }
 
 
-    vm.run();
+    //    vm.run();
 
     return 0;
 }
