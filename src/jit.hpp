@@ -16,7 +16,6 @@ class JIT {
 
 public:
     void print() {
-        int x = 0;
         for (unsigned char i : code) {
             printf("\\x%x", i);
         }
@@ -37,7 +36,8 @@ public:
         push r12
         push r13
         push r14
-        mov rbp, [rsp - 30000]
+        mov  rbp, rsp
+        sub  rbp, 0x7530
          */
         const unsigned char start[] = "\x55\x41\x54\x41\x55\x41\x56\x48\x89\xe5\x48\x81\xed\x30\x75\x00\x00";
         /*
@@ -66,6 +66,15 @@ public:
         syscall
         */
         const unsigned char putchar[] = "\x48\xc7\xc7\x01\x00\x00\x00\x48\x8d\x75\x00\x48\xc7\xc0\x01\x00\x00\x00\x48\xc7\xc2\x01\x00\x00\x00\x0f\x05";
+        // readchar
+        /*
+        mov rax, 0
+        mov rdi, 0
+        lea rsi, [rbp]
+        mov rdx, 1
+        syscall
+        */
+        const unsigned char readchar[] = "\x48\xc7\xc0\x00\x00\x00\x00\x48\xc7\xc7\x00\x00\x00\x00\x48\x8d\x75\x00\x48\xc7\xc2\x01\x00\x00\x00\x0f\x05";
         // [
         // cmp byte ptr [rbp], 0
         // jne 9
@@ -97,6 +106,7 @@ public:
                     code.back() = -static_cast<ValSub *>(inst)->times & 0xff;
                     break;
                 case Opcode::READCHAR:
+                    pushMachineCode(readchar, sizeof readchar);
                     break;
                 case Opcode::PUTCHAR:
                     pushMachineCode(putchar, sizeof putchar);
@@ -121,10 +131,7 @@ public:
                     break;
             }
         }
-
-        //
         pushMachineCode(end, sizeof end);
-        //
     }
 
     void *allocMem(int size) {
