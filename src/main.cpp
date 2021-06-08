@@ -92,7 +92,7 @@ int main(int argc, char *argv[]) {
         JIT jit;
         jit.instructions = std::move(instructions);
         jit.compile();
-        jit.executeMem(jit.allocMem(30000));
+        jit.executeMem(jit.allocMem(100000));
     } else {
         BrainfuckVM vm;
         vm.instructions = std::move(instructions);
