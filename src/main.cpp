@@ -5,6 +5,7 @@
 
 #include <fstream>
 #include <iostream>
+#include <memory>
 #include <stack>
 #include <string>
 #include <utility>
@@ -13,7 +14,7 @@
 //
 bool OPTION_JIT = false;
 bool OPTION_OPT = false;
-std::vector<Instruction *> instructions;
+std::vector<std::unique_ptr<Instruction>> instructions;
 //
 void showHelp() {
     std::string str = "Usage:\n";
@@ -30,30 +31,30 @@ void compile(const std::string &code) {
     for (auto c : code) {
         switch (c) {
             case '>':
-                instructions.emplace_back(new PtrAdd(1));
+                instructions.emplace_back(std::make_unique<PtrAdd>(1));
                 break;
             case '<':
-                instructions.emplace_back(new PtrSub(-1));
+                instructions.emplace_back(std::make_unique<PtrSub>(-1));
                 break;
             case '+':
-                instructions.emplace_back(new ValAdd(1));
+                instructions.emplace_back(std::make_unique<ValAdd>(1));
                 break;
             case '-':
-                instructions.emplace_back(new ValSub(-1));
+                instructions.emplace_back(std::make_unique<ValSub>(-1));
                 break;
             case '.':
-                instructions.emplace_back(new PutChar());
+                instructions.emplace_back(std::make_unique<PutChar>());
                 break;
             case ',':
-                instructions.emplace_back(new ReadChar());
+                instructions.emplace_back(std::make_unique<ReadChar>());
                 break;
             case '[':
                 loop_stack.push(instructions.size());
-                instructions.emplace_back(new LBracket(-1));
+                instructions.emplace_back(std::make_unique<LBracket>(-1));
                 break;
             case ']':
-                instructions.emplace_back(new RBracket(loop_stack.top()));
-                static_cast<LBracket *>(instructions[loop_stack.top()])->target = instructions.size();
+                instructions.emplace_back(std::make_unique<RBracket>(loop_stack.top()));
+                static_cast<LBracket *>(instructions[loop_stack.top()].get())->target = instructions.size();
                 loop_stack.pop();
                 break;
             default:

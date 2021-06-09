@@ -15,16 +15,11 @@ bool inOr(T lhs, R... rhs) {
 
 class Optimizer {
 public:
-    ~Optimizer() {
-        for (auto &inst : instructions) {
-            if (!inOr(inst->tag, Opcode::READCHAR, Opcode::PUTCHAR, Opcode::LBRACKET, Opcode::RBRACKET)) {
-                delete inst;
-            }
-        }
-    }
-
     void optimize() {
         for (auto &inst : instructions) {
+            // backup inst->tag, for std::move(inst) when opcode is one of
+            // Opcode::READCHAR, Opcode::PUTCHAR, Opcode::LBRACKET, Opcode::RBRACKET
+            auto tmp = inst->tag;
             if (inOr(inst->tag, Opcode::PTRADD, Opcode::PTRSUB) && inOr(pre_inst, Opcode::PTRADD, Opcode::PTRSUB)) {
                 if (inst->tag == Opcode::PTRADD) {
                     count++;
@@ -40,21 +35,21 @@ public:
             } else {
                 if (inOr(pre_inst, Opcode::PTRADD, Opcode::PTRSUB)) {
                     if (count > 0) {
-                        optimized.push_back(new PtrAdd(count));
+                        optimized.push_back(std::make_unique<PtrAdd>(count));
                     } else if (count < 0) {
-                        optimized.push_back(new PtrSub(count));
+                        optimized.push_back(std::make_unique<PtrSub>(count));
                     }
                     count = 0;
                 } else if (inOr(pre_inst, Opcode::VALADD, Opcode::VALSUB)) {
                     if (count > 0) {
-                        optimized.push_back(new ValAdd(count));
+                        optimized.push_back(std::make_unique<ValAdd>(count));
                     } else if (count < 0) {
-                        optimized.push_back(new ValSub(count));
+                        optimized.push_back(std::make_unique<ValSub>(count));
                     }
                     count = 0;
                 }
                 if (inOr(inst->tag, Opcode::READCHAR, Opcode::PUTCHAR, Opcode::LBRACKET, Opcode::RBRACKET)) {
-                    optimized.push_back(inst);
+                    optimized.push_back(std::move(inst));
                     count = 0;
                 } else if (inOr(inst->tag, Opcode::VALADD, Opcode::PTRADD)) {
                     count = 1;
@@ -62,7 +57,7 @@ public:
                     count = -1;
                 }
             }
-            pre_inst = inst->tag;
+            pre_inst = tmp;
         }
         relocation();
     }
@@ -73,8 +68,8 @@ public:
             else if (optimized[i]->tag == Opcode::RBRACKET) {
                 auto tmp = loop.top();
                 loop.pop();
-                static_cast<LBracket *>(optimized[tmp])->target = i + 1;
-                static_cast<RBracket *>(optimized[i])->target = tmp;
+                static_cast<LBracket *>(optimized[tmp].get())->target = i + 1;
+                static_cast<RBracket *>(optimized[i].get())->target = tmp;
             }
         }
     }
@@ -90,8 +85,8 @@ public:
     }
 
 public:
-    std::vector<Instruction *> instructions;
-    std::vector<Instruction *> optimized;
+    std::vector<std::unique_ptr<Instruction>> instructions;
+    std::vector<std::unique_ptr<Instruction>> optimized;
 
 private:
     int count{0};

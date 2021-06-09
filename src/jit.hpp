@@ -6,6 +6,7 @@
 #include <cstdio>
 #include <cstdlib>
 #include <cstring>
+#include <memory>
 #include <stack>
 #include <string>
 #include <sys/mman.h>
@@ -91,19 +92,19 @@ public:
             switch (inst->tag) {
                 case Opcode::PTRADD:
                     pushMachineCode(ptr_add, sizeof ptr_add);
-                    writeInt(code.size() - 4, static_cast<PtrAdd *>(inst)->times);
+                    writeInt(code.size() - 4, static_cast<PtrAdd *>(inst.get())->times);
                     break;
                 case Opcode::PTRSUB:
                     pushMachineCode(ptr_sub, sizeof ptr_sub);
-                    writeInt(code.size() - 4, -static_cast<PtrSub *>(inst)->times);
+                    writeInt(code.size() - 4, -static_cast<PtrSub *>(inst.get())->times);
                     break;
                 case Opcode::VALADD:
                     pushMachineCode(val_add, sizeof val_add);
-                    code.back() = static_cast<ValAdd *>(inst)->times & 0xff;
+                    code.back() = static_cast<ValAdd *>(inst.get())->times & 0xff;
                     break;
                 case Opcode::VALSUB:
                     pushMachineCode(val_sub, sizeof val_sub);
-                    code.back() = -static_cast<ValSub *>(inst)->times & 0xff;
+                    code.back() = -static_cast<ValSub *>(inst.get())->times & 0xff;
                     break;
                 case Opcode::READCHAR:
                     pushMachineCode(readchar, sizeof readchar);
@@ -158,7 +159,7 @@ private:
     std::vector<unsigned char> code;// mem
 
 public:
-    std::vector<Instruction *> instructions;
+    std::vector<std::unique_ptr<Instruction>> instructions;
 };
 
 

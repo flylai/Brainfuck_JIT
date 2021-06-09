@@ -42,18 +42,18 @@ public:
     }
 
 private:
-    void ptrAdd() { sp += static_cast<PtrAdd *>(instructions[pc])->times; }
-    void ptrSub() { sp += static_cast<PtrSub *>(instructions[pc])->times; }
-    void valAdd() { registers[sp] += static_cast<ValAdd *>(instructions[pc])->times; }
-    void valSub() { registers[sp] += static_cast<ValSub *>(instructions[pc])->times; }
+    void ptrAdd() { sp += static_cast<PtrAdd *>(instructions[pc].get())->times; }
+    void ptrSub() { sp += static_cast<PtrSub *>(instructions[pc].get())->times; }
+    void valAdd() { registers[sp] += static_cast<ValAdd *>(instructions[pc].get())->times; }
+    void valSub() { registers[sp] += static_cast<ValSub *>(instructions[pc].get())->times; }
     void readChar() { registers[sp] = getchar(); }
     void putChar() { putchar(registers[sp]); }
     void lBracket() {
         if (registers[sp] == 0) {
-            pc = static_cast<LBracket *>(instructions[pc])->target - 1;
+            pc = static_cast<LBracket *>(instructions[pc].get())->target - 1;
         }
     }
-    void rBracket() { pc = static_cast<RBracket *>(instructions[pc])->target - 1; }
+    void rBracket() { pc = static_cast<RBracket *>(instructions[pc].get())->target - 1; }
 
 private:
     unsigned int pc{0};
@@ -61,10 +61,7 @@ private:
 
 public:
     BrainfuckVM() { registers = std::vector<char>(1000, 0); };
-    ~BrainfuckVM() {
-        for (auto &inst : instructions) { delete inst; }
-    }
-    std::vector<Instruction *> instructions;
+    std::vector<std::unique_ptr<Instruction>> instructions;
     std::vector<char> registers;
 };
 
