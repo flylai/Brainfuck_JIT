@@ -18,10 +18,11 @@ std::vector<std::unique_ptr<Instruction>> instructions;
 //
 void showHelp() {
     std::string str = "Usage:\n";
-    str += "    branfuck_jit [options] [src file]\n";
+    str += "    branfuck_jit [options] <src file>\n";
     str += "where options include:\n";
     str += "    -jit enable jit(interpreter is default)\n";
-    str += "    -opt enable optimizer";
+    str += "    -opt enable optimizer\n";
+    str += "    -h show this message\n";
     std::cout << str;
 }
 
@@ -64,12 +65,21 @@ void compile(const std::string &code) {
 }
 
 int main(int argc, char *argv[]) {
-    for (int i = 1; i < argc - 1; i++) {
+
+    if (argc < 2) {
+        showHelp();
+        exit(-1);
+    }
+
+    for (int i = 1; i < argc; i++) {
         std::string option = std::string(argv[i]);
         if (option == "-jit") OPTION_JIT = true;
         else if (option == "-opt")
             OPTION_OPT = true;
-        else {
+        else if (option == "-h") {
+            showHelp();
+            exit(0);
+        } else if (i != argc - 1) {
             std::cerr << "Unknown option `" << option << "`\n";
             showHelp();
             exit(-1);
