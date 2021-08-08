@@ -82,6 +82,7 @@ public:
                 cnt = 0;
             }
         }
+        std::cout << std::flush;
     }
 
 public:

@@ -23,7 +23,6 @@ public:
         printf("\n");// flush!!
     }
     void compile() {
-        unsigned int pos = 0;
         std::stack<int> loop_stack;
         //
         auto pushMachineCode = [this](const unsigned char inst[], int len) {

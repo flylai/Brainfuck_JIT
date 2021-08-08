@@ -18,7 +18,7 @@ std::vector<std::unique_ptr<Instruction>> instructions;
 //
 void showHelp() {
     std::string str = "Usage:\n";
-    str += "    branfuck_jit [options] <src file>\n";
+    str += "    brainfuck_jit [options] <src file>\n";
     str += "where options include:\n";
     str += "    -jit enable jit(interpreter is default)\n";
     str += "    -opt enable optimizer\n";
