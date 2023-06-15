@@ -4,6 +4,7 @@
 #include "instruction.hpp"
 
 #include <iostream>
+#include <memory>
 #include <stack>
 #include <vector>
 

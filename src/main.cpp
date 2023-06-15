@@ -1,6 +1,7 @@
+#include "asmjit.hpp"
 #include "instruction.hpp"
-#include "jit.hpp"
 #include "optimizer.hpp"
+#include "raw_jit.hpp"
 #include "vm.hpp"
 
 #include <fstream>
@@ -100,7 +101,7 @@ int main(int argc, char *argv[]) {
     }
 
     if (OPTION_JIT) {
-        JIT jit;
+        RawJit jit;
         jit.instructions = std::move(instructions);
         jit.compile();
         jit.executeMem(jit.allocMem(100000));
